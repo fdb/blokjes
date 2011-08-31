@@ -7,6 +7,7 @@ GRID_SCALE = 20
 GRID_MAJOR_SCALE = GRID_SCALE * 10
 
 currentBlockType = 1
+currentColorIndex = 1
 canvasMouseDown = false
 canvasDrawing = false
 
@@ -39,6 +40,7 @@ drawPolygon = (coords) ->
   ctx.fill()
 
 drawBlock = (block) ->
+  ctx.fillStyle = colors[block.colorIndex]
   x1 = block.x * GRID_SCALE 
   y1 = block.y * GRID_SCALE 
   x2 = x1 + GRID_SCALE 
@@ -54,6 +56,8 @@ drawBlocks = ->
 
 blocks = []
 
+colors = ['#000', '#300', '#600', '#900', '#c00', '#f00']
+
 redraw = ->
   # Clear canvas
   theCanvas.width = CANVAS_WIDTH
@@ -64,18 +68,18 @@ canvasToBlockCoordinates = (x, y) ->
   [Math.floor(x / GRID_SCALE), Math.floor(y / GRID_SCALE)]
 
 createBlock = (x, y) ->
-  blocks.push {x: x, y: y, type: currentBlockType}
+  blocks.push {x: x, y: y, type: currentBlockType, colorIndex: currentColorIndex}
 
 destroyBlock = (x, y) ->
   blocks = _.reject(blocks, (b) -> b.x == x and b.y == y)
 
-hasBlock = (x, y, blockType) ->
-  _.any(blocks, (b) -> b.x == x and b.y == y and b.type == blockType)
+hasBlock = (x, y, blockType, colorIndex) ->
+  _.any(blocks, (b) -> b.x == x and b.y == y and b.type == blockType and b.colorIndex == colorIndex)
 
 canvasClicked = (x, y) ->
   canvasMouseDown = true
   [blockX, blockY] = canvasToBlockCoordinates x, y
-  if not hasBlock(blockX, blockY, currentBlockType)
+  if not hasBlock(blockX, blockY, currentBlockType, currentColorIndex)
     # The block could exist, but be of another block type.
     destroyBlock blockX, blockY
     createBlock blockX, blockY
@@ -87,7 +91,6 @@ canvasClicked = (x, y) ->
   
 canvasDragged = (x, y) ->
   [blockX, blockY] = canvasToBlockCoordinates x, y
-  console.log(blockX, blockY)
   if canvasDrawing
     destroyBlock blockX, blockY
     createBlock blockX, blockY
@@ -100,15 +103,23 @@ setCurrentBlockType = (type) ->
   $('#block_types button[data-block-type=' + type+ ']').addClass('current')
   currentBlockType = type
 
-$('#block_types button')
-  .unbind()
-  .mousedown (e) ->
-    setCurrentBlockType(parseInt($(this).attr('data-block-type')))
+$('#block_types button').mousedown (e) ->
+  setCurrentBlockType(parseInt($(this).attr('data-block-type')))
+
+initializeColorIndices = ->
+  for color, index in colors
+    $('#colors button[data-color-index=' + index + ']').css('background-color', color)
+    
+setCurrentColorIndex = (index) ->
+  $('#colors button').removeClass('current')
+  $('#colors button[data-color-index=' + index + ']').addClass('current')
+  currentColorIndex = index
+
+$('#colors button').mousedown (e) ->
+  setCurrentColorIndex(parseInt($(this).attr('data-color-index')))
 
 $('#c')
-  .unbind()
   .mousedown (e) ->
-    #console.log(e)
     if e.offsetX
       canvasClicked e.offsetX, e.offsetY
     else if e.pageX
@@ -124,9 +135,14 @@ $('#c')
     e.preventDefault()
 
 $(document.body).keypress (e) ->
-  blockType = parseInt(String.fromCharCode(e.which))
-  setCurrentBlockType(blockType) if 0 <= blockType <= 9
-
+  char = String.fromCharCode(e.which)
+  if '0' <= char <= '9'
+    setCurrentBlockType(parseInt(char))
+  else if (colorIndex = 'qwerty'.indexOf(char) + 1) > 0
+    setCurrentColorIndex(colorIndex)
+  
+initializeColorIndices()
 setCurrentBlockType 1
+setCurrentColorIndex 1
 redraw()
 

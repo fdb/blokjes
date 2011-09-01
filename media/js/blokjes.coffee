@@ -42,7 +42,7 @@ drawPolygon = (coords) ->
   ctx.fill()
 
 drawBlock = (block) ->
-  ctx.fillStyle = colors[block.color]
+  ctx.fillStyle = colors[block.color-1]
   x1 = block.x * GRID_SCALE 
   y1 = block.y * GRID_SCALE 
   x2 = x1 + GRID_SCALE 
@@ -129,7 +129,7 @@ $('#block-types button').mousedown (e) ->
 
 initializeColorIndices = ->
   for color, index in colors
-    $('#colors button[data-color-index=' + index + ']').css('background-color', color)
+    $('#colors button[data-color-index=' + (index+1) + ']').css('background-color', color)
     
 setCurrentColorIndex = (index) ->
   $('#colors button').removeClass('current')

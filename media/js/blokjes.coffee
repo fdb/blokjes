@@ -72,8 +72,8 @@ layers = [
   { visible: true, blocks: [] }]
 
 colors = [
-  '#e2f1f8',
   '#193c50',
+  '#e2f1f8',
   '#9aa073',
   '#a38e8b',
   '#00a4e4']

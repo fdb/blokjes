@@ -1,6 +1,14 @@
 Blokjes
 =======
-A simple drawing app.
+Blokjes is a simple online canvas drawing app written in CoffeeScript. It is deliberately simple because designing with constraints is fun!
+
+Features
+========
+* 5 types of blocks (shortcut: 1-5 keys)
+* 5 (fixed) colors (shortcut: q, w, e, r, t keys)
+* 5 layers
+* JSON loading / dumping
+* SVG export
 
 License
 =======

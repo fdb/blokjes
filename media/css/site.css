@@ -12,7 +12,7 @@ body {
 }
 
 #site {
-  width: 950px;
+  width: 820px;
   margin: 0 auto;
   position: relative;
 }
@@ -28,12 +28,24 @@ body {
   border-radius: 2px;
 }
 
-#block_types {
+#block-types {
+  float: left;
   margin: 0 0 15px;
 }
 
 #colors {
+  clear: left;
+  float: left;
   margin: 0 0 15px;
+}
+
+
+#layers {
+  float: right;
+}
+
+#layers-visible {
+  float: right;
 }
 
 .buttons {
@@ -56,10 +68,31 @@ body {
   color: #888;
 }
 
+.buttons button.checked {
+  background: #ffe;
+}
+
+#layers-visible button:before {
+    content: "✕";
+}
+
+#layers-visible button.checked:before {
+    content: "✓";
+}
+
 .buttons button.current {
   border-color: #aaf;
   box-shadow: 0 1px 5px rgba(180, 180, 200, 1);
   color: #333;
 }
 
-
+#log {
+  border: 1px solid #eee;
+  border-radius: 2px;
+  color: #666;
+  font-family: Monaco, Consolas, "Lucida Console", monospace;
+  font-size: 11px;
+  width: 800px;
+  height: 100px;
+  
+}

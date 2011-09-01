@@ -8,6 +8,8 @@ GRID_MAJOR_SCALE = GRID_SCALE * 10
 
 currentBlockType = 1
 currentColorIndex = 1
+currentLayerIndex = 1
+currentLayer = null
 canvasMouseDown = false
 canvasDrawing = false
 
@@ -40,7 +42,7 @@ drawPolygon = (coords) ->
   ctx.fill()
 
 drawBlock = (block) ->
-  ctx.fillStyle = colors[block.colorIndex]
+  ctx.fillStyle = colors[block.color]
   x1 = block.x * GRID_SCALE 
   y1 = block.y * GRID_SCALE 
   x2 = x1 + GRID_SCALE 
@@ -51,10 +53,19 @@ drawBlock = (block) ->
   drawPolygon [x1, y1, x2, y1, x1, y2] if block.type == 4
   drawPolygon [x1, y1, x2, y1, x2, y2] if block.type == 5
 
-drawBlocks = ->
-  drawBlock(block) for block in blocks
+drawLayer = (layer) ->
+  if layer.visible
+    drawBlock(block) for block in layer.blocks
+  
+drawLayers = ->
+  drawLayer(layer) for layer in layers
 
-blocks = []
+layers = [
+  { visible: true, blocks: [] }, 
+  { visible: true, blocks: [] }, 
+  { visible: true, blocks: [] }, 
+  { visible: true, blocks: [] }, 
+  { visible: true, blocks: [] }]
 
 colors = ['#000', '#300', '#600', '#900', '#c00', '#f00']
 
@@ -62,48 +73,58 @@ redraw = ->
   # Clear canvas
   theCanvas.width = CANVAS_WIDTH
   drawGrid()
-  drawBlocks()
+  drawLayers()
+  dumpLog()
+
+dumpLog = ->
+  $('#log').val( JSON.stringify(layers))
+
+loadLog = ->
+  layers = JSON.parse($('#log').val())
+  currentLayer = layers[currentLayerIndex - 1]
+  redraw()
 
 canvasToBlockCoordinates = (x, y) ->
   [Math.floor(x / GRID_SCALE), Math.floor(y / GRID_SCALE)]
 
-createBlock = (x, y) ->
-  blocks.push {x: x, y: y, type: currentBlockType, colorIndex: currentColorIndex}
+createBlock = (layer, x, y) ->
+  layer.blocks.push {x: x, y: y, type: currentBlockType, color: currentColorIndex}
 
-destroyBlock = (x, y) ->
-  blocks = _.reject(blocks, (b) -> b.x == x and b.y == y)
+destroyBlock = (layer, x, y) ->
+  layer.blocks = _.reject(layer.blocks, (b) -> b.x == x and b.y == y)
 
-hasBlock = (x, y, blockType, colorIndex) ->
-  _.any(blocks, (b) -> b.x == x and b.y == y and b.type == blockType and b.colorIndex == colorIndex)
+hasBlock = (layer, x, y, blockType, colorIndex) ->
+  _.any(layer.blocks, (b) -> b.x == x and b.y == y and b.type == blockType and b.color == colorIndex)
 
 canvasClicked = (x, y) ->
   canvasMouseDown = true
   [blockX, blockY] = canvasToBlockCoordinates x, y
-  if not hasBlock(blockX, blockY, currentBlockType, currentColorIndex)
-    # The block could exist, but be of another block type.
-    destroyBlock blockX, blockY
-    createBlock blockX, blockY
-    canvasDrawing = true
-  else
-    destroyBlock blockX, blockY
-    canvasDrawing = false
-  redraw()
+  if currentLayer.visible
+    if not hasBlock(currentLayer, blockX, blockY, currentBlockType, currentColorIndex)
+      # The block could exist, but be of another block type.
+      destroyBlock currentLayer, blockX, blockY
+      createBlock currentLayer, blockX, blockY
+      canvasDrawing = true
+    else
+      destroyBlock currentLayer, blockX, blockY
+      canvasDrawing = false
+    redraw()
   
 canvasDragged = (x, y) ->
   [blockX, blockY] = canvasToBlockCoordinates x, y
   if canvasDrawing
-    destroyBlock blockX, blockY
-    createBlock blockX, blockY
+    destroyBlock currentLayer, blockX, blockY
+    createBlock currentLayer, blockX, blockY
   else
-    destroyBlock blockX, blockY
+    destroyBlock currentLayer, blockX, blockY
   redraw()
 
 setCurrentBlockType = (type) ->
-  $('#block_types button').removeClass('current')
-  $('#block_types button[data-block-type=' + type+ ']').addClass('current')
+  $('#block-types button').removeClass('current')
+  $('#block-types button[data-block-type=' + type+ ']').addClass('current')
   currentBlockType = type
 
-$('#block_types button').mousedown (e) ->
+$('#block-types button').mousedown (e) ->
   setCurrentBlockType(parseInt($(this).attr('data-block-type')))
 
 initializeColorIndices = ->
@@ -117,7 +138,34 @@ setCurrentColorIndex = (index) ->
 
 $('#colors button').mousedown (e) ->
   setCurrentColorIndex(parseInt($(this).attr('data-color-index')))
+  
+setCurrentLayerIndex = (index) ->
+  $('#layers button').removeClass('current')
+  $('#layers button[data-layer-index=' + index + ']').addClass('current')
 
+  currentLayerIndex = index
+  # Indexes are 1-based, but layer objects are stored zero-based.
+  currentLayer = layers[index-1]
+  
+$('#layers button').click (e) ->
+  setCurrentLayerIndex(parseInt($(this).attr('data-layer-index')))
+  
+toggleLayerVisible = (index) ->
+  # Indexes are 1-based, but layer objects are stored zero-based.
+  layer = layers[index-1]
+  layer.visible = !layer.visible
+  el = $('#layers-visible button[data-layer-index=' + index + ']')
+  if layer.visible
+    el.addClass 'checked'
+  else
+    el.removeClass 'checked'
+  redraw()
+  
+$('#layers-visible button').click (e) ->
+  toggleLayerVisible(parseInt($(this).attr('data-layer-index')))
+  
+$('#load-log').click (e) -> loadLog()
+  
 $('#c')
   .mousedown (e) ->
     if e.offsetX
@@ -144,5 +192,6 @@ $(document.body).keypress (e) ->
 initializeColorIndices()
 setCurrentBlockType 1
 setCurrentColorIndex 1
+setCurrentLayerIndex 1
 redraw()
 

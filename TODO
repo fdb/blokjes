@@ -1,0 +1,6 @@
+TODO
+====
+* Add color palette support: a user should be able to select color palettes.
+  Since we're storing color indices, the drawing automatically updates.
+* Add persistence through Backbone.js.
+* Make the grid scale configurable per layer.

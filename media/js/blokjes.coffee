@@ -67,7 +67,12 @@ layers = [
   { visible: true, blocks: [] }, 
   { visible: true, blocks: [] }]
 
-colors = ['#000', '#300', '#600', '#900', '#c00', '#f00']
+colors = [
+  '#e2f1f8',
+  '#193c50',
+  '#9aa073',
+  '#a38e8b',
+  '#00a4e4']
 
 redraw = ->
   # Clear canvas

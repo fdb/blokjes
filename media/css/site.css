@@ -13,13 +13,29 @@ body {
 
 #site {
   width: 820px;
-  margin: 0 auto;
+  margin: 20px auto 0 auto;
   position: relative;
+  clear: both;
 }
 
 #header {
     margin: 20px auto;
     width: 820px;
+}
+
+#header h1 {
+  float: left;
+  margin-bottom: 20px;
+}
+
+#header #load-example {
+  float: right;
+  margin: 5px 15px 0;
+}
+
+#canvas-wrapper {
+  clear: both;
+  position: relative;
 }
 
 #c {

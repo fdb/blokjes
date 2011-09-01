@@ -83,15 +83,42 @@ redraw = ->
   theCanvas.width = CANVAS_WIDTH
   drawGrid()
   drawLayers()
-  dumpLog()
 
 dumpLog = ->
   $('#log').val( JSON.stringify(layers))
 
-loadLog = ->
-  layers = JSON.parse($('#log').val())
+loadLog = (data) ->
+  if data
+    layers = data
+  else
+    layers = JSON.parse($('#log').val())
   currentLayer = layers[currentLayerIndex - 1]
   redraw()
+  
+exportSVG = ->
+  svg = '<?xml version="1.0" encoding="UTF-8"?>
+  <svg
+    xmlns="http://www.w3.org/2000/svg" 
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    width="800px" height="600px" viewBox="0 0 800 600">'
+  
+  for layer, layerIndex in layers
+    continue if not layer.visible
+    svg += '<g id="layer' + (layerIndex + 1) + '" inkscape:label="Layer ' + (layerIndex + 1) + '" inkscape:groupmode="layer">'
+    for block in layer.blocks
+      coords = pointsForBlock block
+      points = ''
+      for index in [0...coords.length] by 2
+        x = coords[index]
+        y = coords[index+1]
+        points += "#{x},#{y} "
+        
+      fill = colors[block.color-1]
+      svg += '  <polygon fill="' + fill + '" points="' + points + '"/>\n'
+
+    svg += '</g>'
+  svg += '</svg>'
+  $('#svg').html(svg)
 
 canvasToBlockCoordinates = (x, y) ->
   [Math.floor(x / GRID_SCALE), Math.floor(y / GRID_SCALE)]
@@ -174,22 +201,33 @@ $('#layers-visible button').click (e) ->
   toggleLayerVisible(parseInt($(this).attr('data-layer-index')))
   
 $('#load-log').click (e) -> loadLog()
+$('#dump-log').click (e) -> dumpLog()
+$('#export-svg').click (e) -> exportSVG()
+
+$('#load-example').change (e) -> 
+  $.getJSON $(this).val(), (data) ->
+    loadLog data
+    
+getRelativePosition = (e) ->
+   if e.layerX
+      x = e.layerX
+      y = e.layerY
+    else if e.offsetX
+      x = e.offsetX
+      y = e.offsetY
+    { x: x, y: y }
   
 $('#c')
   .mousedown (e) ->
-    if e.offsetX
-      canvasClicked e.offsetX, e.offsetY
-    else if e.pageX
-      canvasClicked e.pageX, e.pageY
+    pos = getRelativePosition e
+    canvasClicked pos.x, pos.y
+    e.preventDefault()
+  .mousemove (e) ->
+    pos = getRelativePosition e
+    canvasDragged pos.x, pos.y if canvasMouseDown
     e.preventDefault()
   .mouseup (e) ->
     canvasMouseDown = false
-  .mousemove (e) ->
-    if e.offsetX
-      canvasDragged e.offsetX, e.offsetY if canvasMouseDown
-    else if e.pageX
-      canvasDragged e.pageX, e.pageY if canvasMouseDown
-    e.preventDefault()
   .mouseleave (e) ->
     canvasMouseDown = false
 

@@ -10,7 +10,13 @@
 </head>
 <body>
   <div id="main">
-    <div id="header"><h1>Blokjes</h1></div>
+    <div id="header">
+      <h1>Blokjes</h1>
+      <select id="load-example">
+        <option selected>Load example</option>
+        <option value="examples/altiplano.json">altiplano</option>
+      </select>
+    </div>
     <div id="nav"></div>
     <div id="site">
       <div id="block-types" class="buttons">
@@ -41,9 +47,14 @@
         <button data-layer-index="4" class="checked"></button>
         <button data-layer-index="5" class="checked"></button>
       </div>
-      <canvas id="c" width="800" height="600"></canvas>
+      <div id="canvas-wrapper">
+        <canvas id="c" width="800" height="600"></canvas>
+      </div>
       <textarea id="log"></textarea>
       <button id="load-log">Load Log</button>
+      <button id="dump-log">Dump Log</button>
+      <button id="export-svg">Export SVG</button>
+      <div id="svg"></pre>
     </div> <!-- #site -->
   </div> <!-- #main -->
   <script type="text/javascript" src="media/js/blokjes.js"></script>

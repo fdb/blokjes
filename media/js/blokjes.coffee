@@ -181,6 +181,8 @@ $('#c')
     else if e.pageX
       canvasDragged e.pageX, e.pageY if canvasMouseDown
     e.preventDefault()
+  .mouseleave (e) ->
+    canvasMouseDown = false
 
 $(document.body).keypress (e) ->
   char = String.fromCharCode(e.which)

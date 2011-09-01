@@ -36,22 +36,26 @@ drawGrid = ->
 
 drawPolygon = (coords) ->
   ctx.beginPath()
-  for index in [0..coords.length] by 2
+  for index in [0...coords.length] by 2
     ctx.moveTo(coords[index], coords[index+1]) if index == 0
     ctx.lineTo(coords[index], coords[index+1]) if index != 0
   ctx.fill()
 
 drawBlock = (block) ->
   ctx.fillStyle = colors[block.color-1]
+  drawPolygon pointsForBlock block
+  
+pointsForBlock = (block) ->
   x1 = block.x * GRID_SCALE 
   y1 = block.y * GRID_SCALE 
   x2 = x1 + GRID_SCALE 
   y2 = y1 + GRID_SCALE
-  drawPolygon [x1, y1, x2, y1, x2, y2, x1, y2] if block.type == 1
-  drawPolygon [x2, y1, x2, y2, x1, y2] if block.type == 2
-  drawPolygon [x1, y1, x1, y2, x2, y2] if block.type == 3
-  drawPolygon [x1, y1, x2, y1, x1, y2] if block.type == 4
-  drawPolygon [x1, y1, x2, y1, x2, y2] if block.type == 5
+  
+  return [x1, y1, x2, y1, x2, y2, x1, y2] if block.type == 1
+  return [x2, y1, x2, y2, x1, y2] if block.type == 2
+  return [x1, y1, x1, y2, x2, y2] if block.type == 3
+  return [x1, y1, x2, y1, x1, y2] if block.type == 4
+  return [x1, y1, x2, y1, x2, y2] if block.type == 5
 
 drawLayer = (layer) ->
   if layer.visible

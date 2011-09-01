@@ -231,7 +231,7 @@ $('#c')
   .mouseleave (e) ->
     canvasMouseDown = false
 
-$(document.body).keypress (e) ->
+$(document).keypress (e) ->
   char = String.fromCharCode(e.which)
   if '0' <= char <= '9'
     setCurrentBlockType(parseInt(char))

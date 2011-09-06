@@ -111,3 +111,18 @@ body {
   height: 100px;
   
 }
+
+#footer {
+    margin-top: 10px;
+    text-align: center;
+    color: #666;
+}
+
+#footer a {
+    text-decoration: none;
+    color: #669;
+}
+
+#footer a:hover {
+    text-decoration: underline;
+}

@@ -4,3 +4,6 @@ TODO
 * Save the colors in the document.
 * Add persistence through Backbone.js.
 * Make the grid scale configurable per layer.
+* Check that blocks are never out of bounds ( 0 <= x <= CANVAS_WIDTH )
+* Add per-layer offset. Use arrow-keys to offset current layer.
+* More compact over-the-wire format?
